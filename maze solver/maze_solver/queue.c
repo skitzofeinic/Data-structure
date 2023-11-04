@@ -59,6 +59,7 @@ int queue_push(struct queue *q, int e) {
         q->rear = (q->rear + 1) % (int)q->capacity;
         q->data[q->rear] = e;
     }
+    q->push_count++;
     return 0;
 }
 
@@ -74,6 +75,7 @@ int queue_pop(struct queue *q) {
         item = q->data[q->front];
         q->front = (q->front + 1) % (int) q->capacity;
     }
+    q->pop_count++;
     return item;
 }
 
