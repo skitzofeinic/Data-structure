@@ -1,2 +1,9 @@
 # Data-structure
-vak datastructuur blok 2
+Subject Datastructure
+
+    Assignments
+        Maze solver
+        Insertion sort
+        hash tables
+        heaps
+        sets
