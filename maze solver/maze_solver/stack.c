@@ -35,11 +35,13 @@ struct stack *stack_init(size_t capacity) {
 }
 
 void stack_cleanup(struct stack *s) {
+    if (s == NULL) return;
     free(s->data);
     free(s);
 }
 
 void stack_stats(const struct stack *s) {
+    if (s == NULL) return;
     fprintf(stderr, "%d, %d, %ld", s->push_count, s->pop_count, s->capacity);
 }
 
@@ -77,5 +79,6 @@ int stack_empty(const struct stack *s) {
 }
 
 size_t stack_size(const struct stack *s) {
+    if (s == NULL) return 1;
     return (size_t)s->top + 1;
 }
