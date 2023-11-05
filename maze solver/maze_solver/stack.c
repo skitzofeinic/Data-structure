@@ -14,15 +14,12 @@ struct stack {
 struct stack *stack_init(size_t capacity) {
     struct stack* s = malloc(sizeof(struct stack));
     if (s == NULL) {
-        perror("Error allocating stack");
-        free(s);
         return NULL;
     }
 
     s->data = malloc(sizeof(int) * capacity);
     if (s->data == NULL) {
-        perror("Error allocating stack data");
-        free(s->data);
+        free(s);
         return NULL;
     }
 

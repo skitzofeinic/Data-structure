@@ -15,15 +15,12 @@ struct queue {
 struct queue *queue_init(size_t capacity) {
     struct queue* q = malloc(sizeof(struct queue));
     if (q == NULL) {
-        perror("Error allocating queue");
-        free(q);
         return NULL;
     }
 
     q->data = malloc(sizeof(int) * capacity);
     if (q->data == NULL) {
-        perror("Error allocating queue data");
-        free(q->data);
+        free(q);
         return NULL;
     }
 
