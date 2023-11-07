@@ -56,6 +56,7 @@ void node_search(struct maze *m, int r, int c, int *a, int n, struct queue *q, i
 
             queue_push(q, maze_index(m, r_new, c_new));
             p[idx] = peek;
+            
             if (!maze_at_destination(m, r, c)) {
                 maze_set(m, r_new, c_new, TO_VISIT);
             }    
