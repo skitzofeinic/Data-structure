@@ -8,7 +8,7 @@
 #define NOT_FOUND -1
 #define ERROR -2
 #define VALID_MOVES 4
-#define SIZE 5000
+#define SIZE 50000
 #define FINISH 'D'
 
 /**
@@ -52,7 +52,7 @@ void node_search(struct maze *m, int r, int c, int *a, int n, struct queue *q, i
 
         if (maze_valid_move(m, r_new, c_new) && !is_visited(n, a, idx)
                 && maze_get(m, r_new, c_new) != WALL) {
-                    
+
                 queue_push(q, maze_index(m, r_new, c_new));
                 p[idx] = peek;
                 if (!maze_at_destination(m, r, c)) {
