@@ -8,7 +8,7 @@
 #define NOT_FOUND -1
 #define ERROR -2
 #define VALID_MOVES 4
-#define SIZE 50000
+#define SIZE 100000
 #define FINISH 'D'
 
 /**

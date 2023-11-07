@@ -96,8 +96,8 @@ int count_path(struct maze *m) {
  * Returns NOT_FOUND if no path is found and ERROR if an error occured.
  */
 int dfs_solve(struct maze *m) {
-    struct stack *s = stack_init(50000); 
-    int arr_size = maze_size(m) * 100;
+    struct stack *s = stack_init(100000); 
+    int arr_size = maze_size(m) * 200;
     int visited[arr_size]; 
     int r = 0, c = 0, idx = 0;
 
