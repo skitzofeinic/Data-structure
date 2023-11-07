@@ -112,7 +112,7 @@ int bfs_solve(struct maze *m) {
     queue_push(q, maze_index(m, r, c));
 
     while (!queue_empty(q)) {
-        if (idx > SIZE) {
+        if (idx > SIZE * VALID_MOVES) {
             queue_cleanup(q);
             return ERROR;
         }
@@ -129,7 +129,7 @@ int bfs_solve(struct maze *m) {
             queue_cleanup(q);
             return shortest_path(m, r, c, prev, peek);
         }
-        
+
         idx++;
     }
 
