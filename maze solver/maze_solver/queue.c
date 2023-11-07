@@ -43,7 +43,7 @@ void queue_cleanup(struct queue *q) {
 
 void queue_stats(const struct queue *q) {
     if (q == NULL) return;
-    fprintf(stderr, "%d, %d, %ld", q->push_count, q->pop_count, q->max_elem);
+    fprintf(stderr, "stats: %d, %d, %ld\n", q->push_count, q->pop_count, q->max_elem);
 }
 
 int queue_push(struct queue *q, int e) {

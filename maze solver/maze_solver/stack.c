@@ -40,7 +40,7 @@ void stack_cleanup(struct stack *s) {
 
 void stack_stats(const struct stack *s) {
     if (s == NULL) return;
-    fprintf(stderr, "%d, %d, %ld", s->push_count, s->pop_count, s->capacity);
+    fprintf(stderr, "stats: %d, %d, %ld\n", s->push_count, s->pop_count, s->max_elem);
 }
 
 int stack_push(struct stack *s, int c) {
