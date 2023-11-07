@@ -8,7 +8,7 @@
 #define NOT_FOUND -1
 #define ERROR -2
 #define VALID_MOVES 4
-#define SIZE 100000
+#define SIZE 251001
 #define FINISH 'D'
 
 /**
@@ -51,14 +51,13 @@ void node_search(struct maze *m, int r, int c, int *a, int n, struct queue *q, i
         int idx = maze_index(m, r_new, c_new);
 
         if (maze_valid_move(m, r_new, c_new) && !is_visited(n, a, idx)
-                && maze_get(m, r_new, c_new) != WALL) {
+            && maze_get(m, r_new, c_new) != WALL) {
 
-                queue_push(q, maze_index(m, r_new, c_new));
-                p[idx] = peek;
-                if (!maze_at_destination(m, r, c)) {
-                    maze_set(m, r_new, c_new, TO_VISIT);
-                }
-                
+            queue_push(q, maze_index(m, r_new, c_new));
+            p[idx] = peek;
+            if (!maze_at_destination(m, r, c)) {
+                maze_set(m, r_new, c_new, TO_VISIT);
+            }    
         }
     }
 }
@@ -100,11 +99,12 @@ int shortest_path(struct maze *m, int r, int c, int *p, int peek) {
  */
 int bfs_solve(struct maze *m) {
     struct queue *q = queue_init(SIZE);
-    int visited[SIZE];
-    int prev[SIZE];
+    int arr_size = maze_size(m) * 500;
+    int visited[arr_size];
+    int prev[arr_size];
     int r = 0, c = 0, idx = 0;
 
-    for (size_t i = 0; i < SIZE; i++) {
+    for (size_t i = 0; i < arr_size; i++) {
         prev[i] = -1;
         visited[i] = -1;
     }
@@ -113,7 +113,7 @@ int bfs_solve(struct maze *m) {
     queue_push(q, maze_index(m, r, c));
 
     while (!queue_empty(q)) {
-        if (idx > SIZE) {
+        if (idx > arr_size) {
             queue_cleanup(q);
             return ERROR;
         }
@@ -123,7 +123,7 @@ int bfs_solve(struct maze *m) {
         c = maze_col(m, peek);
 
         visited[idx] = queue_pop(q);
-        node_search(m, r, c, visited, SIZE, q, prev, peek);
+        node_search(m, r, c, visited, arr_size, q, prev, peek);
         maze_set(m, r, c, VISITED);
 
         if (maze_at_destination(m, r, c)) {
