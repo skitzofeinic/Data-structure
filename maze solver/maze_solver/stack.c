@@ -28,6 +28,7 @@ struct stack *stack_init(size_t capacity) {
     s->top = -1;
     s->pop_count = 0;
     s->push_count = 0;
+    s->max_elem = 0;
 
     return s;
 }
@@ -40,7 +41,7 @@ void stack_cleanup(struct stack *s) {
 
 void stack_stats(const struct stack *s) {
     if (s == NULL) return;
-    fprintf(stderr, "stats: %d, %d, %ld\n", s->push_count, s->pop_count, s->max_elem);
+    fprintf(stderr, "stats: %d %d %ld\n", s->push_count, s->pop_count, s->max_elem);
 }
 
 int stack_push(struct stack *s, int c) {
