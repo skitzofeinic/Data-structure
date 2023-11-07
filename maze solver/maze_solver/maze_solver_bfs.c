@@ -50,7 +50,9 @@ void node_search(struct maze *m, int r, int c, int *a, int n, struct queue *q, i
         int c_new = c + m_offsets[i][1];
         int idx = maze_index(m, r_new, c_new);
 
-        if (maze_valid_move(m, r_new, c_new) && !is_visited(n, a, idx) && maze_get(m, r_new, c_new) != WALL && maze_get(m, r_new, c_new) != FINISH) {
+        if (maze_valid_move(m, r_new, c_new) && !is_visited(n, a, idx)
+                && maze_get(m, r_new, c_new) != WALL) {
+                    
                 queue_push(q, maze_index(m, r_new, c_new));
                 p[idx] = peek;
                 if (!maze_at_destination(m, r, c)) {
@@ -81,7 +83,7 @@ int shortest_path(struct maze *m, int r, int c, int *p, int peek) {
         r = maze_row(m, peek);
         c = maze_col(m, peek);
         peek = p[peek];
-        
+
         if (!maze_at_start(m, r, c)) {
             maze_set(m, r, c, PATH);
             len++;

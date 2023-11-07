@@ -10,6 +10,7 @@
 #define VALID_MOVES 4
 #define START 'S'
 #define FINISH 'D'
+#define SIZE 5000
 
 /**
  * Searches if the index is in the visited array.
@@ -124,11 +125,11 @@ int dfs_solve(struct maze *m) {
 
         if (next_move == -1) {
             maze_set(m, r, c, VISITED);
-            stack_pop(s); 
+            stack_pop(s);
         } else {
             stack_push(s, next_move);
         }
-        
+
         idx++;
     }
 

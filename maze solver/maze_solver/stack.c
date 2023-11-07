@@ -9,6 +9,7 @@ struct stack {
     int *data;
     int pop_count;
     int push_count;
+    size_t max_elem;
 };
 
 struct stack *stack_init(size_t capacity) {
@@ -47,6 +48,10 @@ int stack_push(struct stack *s, int c) {
     s->top++;
     s->data[s->top] = c;
     s->push_count++;
+
+    if (stack_size(s) > s->max_elem) {
+        s->max_elem = stack_size(s);
+    }
 
     return 0;
 }

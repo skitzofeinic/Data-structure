@@ -10,6 +10,7 @@ struct queue {
     int *data;
     int pop_count;
     int push_count;
+    size_t max_elem;
 };
 
 struct queue *queue_init(size_t capacity) {
@@ -29,6 +30,7 @@ struct queue *queue_init(size_t capacity) {
     q->rear = -1;
     q->pop_count = 0;
     q->push_count = 0;
+    q->max_elem = 0;
 
     return q;
 }
@@ -41,7 +43,7 @@ void queue_cleanup(struct queue *q) {
 
 void queue_stats(const struct queue *q) {
     if (q == NULL) return;
-    fprintf(stderr, "%d, %d, %ld", q->push_count, q->pop_count, q->capacity);
+    fprintf(stderr, "%d, %d, %ld", q->push_count, q->pop_count, q->max_elem);
 }
 
 int queue_push(struct queue *q, int e) {
@@ -57,6 +59,11 @@ int queue_push(struct queue *q, int e) {
         q->data[q->rear] = e;
     }
     q->push_count++;
+
+    if (queue_size(q) > q->max_elem) {
+        q->max_elem = queue_size(q);
+    }
+
     return 0;
 }
 
@@ -73,6 +80,7 @@ int queue_pop(struct queue *q) {
         q->front = (q->front + 1) % (int) q->capacity;
     }
     q->pop_count++;
+
     return item;
 }
 
