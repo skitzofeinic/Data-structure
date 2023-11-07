@@ -9,7 +9,6 @@
 #define ERROR -2
 #define VALID_MOVES 4
 #define SIZE 100000
-#define FINISH 'D'
 
 /**
  * Searches if the index is in the visited array.
@@ -39,6 +38,8 @@ bool is_visited (int n, int *a, int m) {
  * c: index of column.
  * a: array of visited.
  * n: size of array.
+ * q: queue stack
+ * p: array of predecessor nodes
  * 
  * Returns:
  * adds all adjacent nodes into the queue
@@ -70,7 +71,6 @@ void node_search(struct maze *m, int r, int c, int *a, int n, struct queue *q, i
  * r: row index
  * c: column index
  * p: prev array
- * v: visited array
  * 
  * Returns:
  * Total length of the shortest path.
