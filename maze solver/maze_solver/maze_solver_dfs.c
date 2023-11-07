@@ -42,7 +42,7 @@ bool is_visited (int n, int *a, int m) {
  * n: size of array of visited.
  * 
  * Returns:
- * If succesful, returns the node with index of next move if succesful, otherwise return -1.
+ * If succesful, returns the node with index of next move, otherwise return -1.
 */
 int node_search(struct maze *m, int r, int c, int *a, int n) {
     int node = -1;
@@ -71,6 +71,8 @@ int node_search(struct maze *m, int r, int c, int *a, int n) {
  * 
  * m: maze
  * n: size of maze
+ * i: row index
+ * j: column index
  * 
  * Returns:
  * the length of the path.
@@ -93,44 +95,44 @@ int count_path(struct maze *m) {
  * Returns NOT_FOUND if no path is found and ERROR if an error occured.
  */
 int dfs_solve(struct maze *m) {
-    struct stack *stack = stack_init(5000); 
+    struct stack *s = stack_init(5000); 
     int arr_size = maze_size(m) * 10;
     int visited[arr_size]; 
     int r = 0, c = 0, idx = 0;
 
     maze_start(m, &r, &c);
-    stack_push(stack, maze_index(m, r, c)); 
+    stack_push(s, maze_index(m, r, c)); 
 
-    while (!stack_empty(stack)) {
+    while (!stack_empty(s)) {
         if (idx > arr_size) {
-            stack_cleanup(stack); 
+            stack_cleanup(s); 
             return ERROR; 
         }
         
-        c = maze_col(m, stack_peek(stack)); 
-        r = maze_row(m, stack_peek(stack));
+        c = maze_col(m, stack_peek(s)); 
+        r = maze_row(m, stack_peek(s));
 
         if (maze_at_destination(m, r, c)) {
-            stack_cleanup(stack); 
+            stack_cleanup(s); 
             return count_path(m);
         }
 
         maze_set(m, r, c, PATH);
 
-        visited[idx] = stack_peek(stack);
+        visited[idx] = stack_peek(s);
         int next_move = node_search(m, r, c, visited, arr_size);
 
         if (next_move == -1) {
             maze_set(m, r, c, VISITED);
-            stack_pop(stack); 
+            stack_pop(s); 
         } else {
-            stack_push(stack, next_move);
+            stack_push(s, next_move);
         }
         
         idx++;
     }
 
-    stack_cleanup(stack); 
+    stack_cleanup(s); 
     return NOT_FOUND; 
 }
 
