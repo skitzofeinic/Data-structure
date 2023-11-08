@@ -1,3 +1,15 @@
+/**
+ * Name: Nguyen Anh Le
+ * studentID: 15000370
+ * BsC Informatica
+ *
+ * Description:
+ * This C program provides an implementation of a basic stack data structure. A stack is a linear 
+ * data structure that follows the Last-In-First-Out (LIFO) principle. It supports operations like 
+ * push (adding an element to the top) and pop (removing an element from the top). The program 
+ * defines the stack structure and functions to work with it.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 

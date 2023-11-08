@@ -1,3 +1,15 @@
+/**
+ * Name: Nguyen Anh Le
+ * studentID: 15000370
+ * BsC Informatica
+ *
+ * Description:
+ * This program employs the Depth-First Search (DFS) algorithm to solve a maze.
+ * It explores the maze by traversing paths as deep as possible, finding a possible next move, if
+ * it doesnt find one it backtracks until another path is found. The program reads the maze, 
+ * applies DFS, and prints the results.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -8,7 +20,8 @@
 #define NOT_FOUND -1
 #define ERROR -2
 #define VALID_MOVES 4
-#define SIZE 5000
+#define SIZE 100000
+#define MULT 200
 
 /**
  * Searches if the index is in the visited array.
@@ -22,9 +35,7 @@
 */
 bool is_visited (int n, int *a, int m) {
     for (int i = 0; i < n; i++) {
-        if (a[i] == m) {
-            return true; 
-        }
+        if (a[i] == m) return true; 
     }
 
     return false;
@@ -95,7 +106,7 @@ int count_path(struct maze *m) {
  */
 int dfs_solve(struct maze *m) {
     struct stack *s = stack_init(SIZE); 
-    int arr_size = (size_t) (maze_size(m) * maze_size(m));
+    int arr_size = maze_size(m) * MULT;
     int visited[arr_size]; 
     int r = 0, c = 0, idx = 0;
 
@@ -108,7 +119,7 @@ int dfs_solve(struct maze *m) {
     stack_push(s, maze_index(m, r, c)); 
 
     while (!stack_empty(s)) {
-        if (idx > arr_size) {
+        if (stack_size(s) > SIZE) {
             stack_cleanup(s); 
             return ERROR; 
         }

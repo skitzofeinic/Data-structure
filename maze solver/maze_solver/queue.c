@@ -1,3 +1,16 @@
+/**
+ * Name: Nguyen Anh Le
+ * studentID: 15000370
+ * BsC Informatica
+ *
+ * Description:
+ * This program provides an implementation of a basic queue data structure.
+ * A queue is a data structure that follows the First-In-First-Out (FIFO) principle.
+ * It supports operations like enqueue (inserting an element at the rear) 
+ * and dequeue (removing an element from the front). The program defines the queue structure and 
+ * functions to work with it.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 

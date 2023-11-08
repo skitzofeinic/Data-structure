@@ -1,3 +1,14 @@
+/**
+ * Name: Nguyen Anh Le
+ * studentID: 15000370
+ * BsC Informatica
+ *
+ * Description:
+ * This program uses the Breadth-First Search (BFS) algorithm to solve a maze.
+ * It explores the maze from the start to the destination, finding the shortest path if one exists.
+ * The program reads the maze, applies BFS, and prints the results.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -9,6 +20,8 @@
 #define ERROR -2
 #define VALID_MOVES 4
 #define SIZE 5000
+#define MULT 400
+#define MAX 501
 
 /**
  * looks for all adjacent nodes that are possible as next move and add it to the the queue.
@@ -16,7 +29,7 @@
  * m: maze.
  * r: index of row.
  * c: index of column.
- * q: queue stack
+ * q: queue
  * p: array of predecessor node
  * pred: index of predecessor node
  * 
@@ -80,9 +93,11 @@ int shortest_path(struct maze *m, int r, int c, int *p, int pred) {
  */
 int bfs_solve(struct maze *m) {
     struct queue *q = queue_init(SIZE);
-    size_t arr_size = (size_t) (maze_size(m) * maze_size(m));
-    int prev[arr_size];
-    int r = 0, c = 0, idx = 0;
+    size_t arr_size = (size_t) (maze_size(m) * MULT);
+    
+    if (maze_size(m) == MAX) arr_size = (size_t) (maze_size(m) * maze_size(m));
+    
+    int prev[arr_size], r = 0, c = 0, idx = 0;
 
     for (size_t i = 0; i < arr_size; i++) {
         prev[i] = -1;
@@ -92,7 +107,7 @@ int bfs_solve(struct maze *m) {
     queue_push(q, maze_index(m, r, c));
 
     while (!queue_empty(q)) {
-        if (idx > arr_size) {
+        if (queue_size(q) > SIZE) {
             queue_cleanup(q);
             return ERROR;
         }
