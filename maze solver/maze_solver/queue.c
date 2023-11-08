@@ -120,4 +120,3 @@ size_t queue_size(const struct queue *q) {
 
     return (size_t)(q->front - q->rear) + 1;
 }
-    
