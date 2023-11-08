@@ -8,8 +8,7 @@
 #define NOT_FOUND -1
 #define ERROR -2
 #define VALID_MOVES 4
-#define SIZE 100000
-#define MULT 200
+#define SIZE 5000
 
 /**
  * Searches if the index is in the visited array.
@@ -96,7 +95,7 @@ int count_path(struct maze *m) {
  */
 int dfs_solve(struct maze *m) {
     struct stack *s = stack_init(SIZE); 
-    int arr_size = maze_size(m) * MULT;
+    int arr_size = (size_t) (maze_size(m) * maze_size(m));
     int visited[arr_size]; 
     int r = 0, c = 0, idx = 0;
 
