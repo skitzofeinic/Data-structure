@@ -14,8 +14,13 @@ due 8 Nov by 23:59
 
 ### [Insertion sort](https://canvas.uva.nl/courses/39076/assignments/459993/submissions/411202)
 17 Nov by 23:59
-- list
-- insertion sort
+- ~~List~~
+- ~~Insertion sort~~
+  - ~~Ascending~~
+  - ~~Descending~~
+- ~~Combining adjacent nodes~~
+- ~~Remove odd numbers from list~~
+- Zip alternate list (TODO)
 
 ### [Hash table](https://canvas.uva.nl/courses/39076/assignments/459994/submissions/411202)
 29 Nov by 23:59
