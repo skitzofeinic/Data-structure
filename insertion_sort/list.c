@@ -113,8 +113,8 @@ int list_add_back(struct list *l, struct node *n) {
         l->tail->next = n;
         l->tail = n;
     }
-    l->size++;
 
+    l->size++;
     return 0;
 }
 
