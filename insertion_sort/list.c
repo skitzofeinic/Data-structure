@@ -1,3 +1,14 @@
+/**
+ * Name: Nguyen Anh Le
+ * studentID: 15000370
+ * BsC Informatica
+ * 
+ * This file provides the declarations for a  doubly linked list data structure
+ * along with functions to manipulate and operate on the list and its nodes. The list
+ * supports dynamic allocation of nodes, insertion at the front and back, removal of
+ * nodes, and other basic operations.
+*/
+
 #include "list.h"
 
 /*
@@ -102,7 +113,6 @@ struct node *list_prev(const struct list *l, const struct node *n) {
 }
 
 int list_add_back(struct list *l, struct node *n) {
-    /* ... SOME CODE MISSING HERE ... */
     if (l == NULL || n == NULL) return 1;
 
     if (l->head == NULL) {
@@ -119,6 +129,8 @@ int list_add_back(struct list *l, struct node *n) {
 }
 
 int list_node_get_value(const struct node *n) {
+    if (n == NULL) return -1;
+
     return n->data;
 }
 
@@ -153,6 +165,7 @@ int list_unlink_node(struct list *l, struct node *n) {
 }
 
 void list_free_node(struct node *n) {
+    if (n == NULL) return;
     free(n);
 }
 
@@ -169,7 +182,7 @@ int list_cleanup(struct list *l) {
     }
 
     free(l);
-
+    
     return 0;
 }
 
@@ -187,7 +200,7 @@ int list_node_present(const struct list *l, const struct node *n) {
 }
 
 int list_insert_after(struct list *l, struct node *n, struct node *m) {
-    if (l == NULL || n == NULL || m == NULL || list_node_present(l, n)) return 1;
+    if (l == NULL || n == NULL || m == NULL || list_node_present(l, n) || !list_node_present(l, m)) return 1;
 
     struct node *node_m = l->head;
     while (node_m != NULL && node_m != m) {
@@ -260,13 +273,14 @@ struct list *list_cut_after(struct list *l, struct node *n) {
     struct list *second_half = (struct list *)malloc(sizeof(struct list));
     if (second_half == NULL) return NULL;
 
-    second_half->size = 0;
     second_half->head = n->next;
     second_half->tail = l->tail;
+    second_half->size = list_length(second_half);
 
-    l->size -= second_half->size;
     l->tail = n;
     n->next = NULL;
+    l->size -= second_half->size;
 
     return second_half;
 }
+
