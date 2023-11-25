@@ -10,6 +10,7 @@
         "initializer_list": "c",
         "utility": "c",
         "random": "c",
-        "maze.h": "c"
+        "maze.h": "c",
+        "unordered_map": "c"
     },
 }
