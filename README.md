@@ -20,10 +20,13 @@ due 8 Nov by 23:59
   - ~~Descending~~
 - ~~Combining adjacent nodes~~
 - ~~Remove odd numbers from list~~
-- Zip alternate list (TODO)
+- ~~Zip alternate list~~
 
 ### [Hash table](https://canvas.uva.nl/courses/39076/assignments/459994/submissions/411202)
 29 Nov by 23:59
+- ~~Array~~
+- ~~Hash table~~
+- Hash functions
 
 ### [Heaps](https://canvas.uva.nl/courses/39076/assignments/459995/submissions/411202)
 6 Dec by 23:59
