@@ -30,23 +30,31 @@ void array_cleanup(struct array *a) {
 }
 
 int array_get(const struct array *a, unsigned long index) {
-    return (!a || index > a->size) ? -1 : a->element[index];
+    return (!a || index >= a->size) ? -1 : a->element[index];
 }
 
 int array_append(struct array *a, int elem) {
     if (!a) return 1;
 
-    if (array_size(a) >= a->capacity) {
-        a->capacity *= 2;
-        int *new_element = realloc(a->element, sizeof(int) * a->capacity);
-        if (!new_element) return 1;
+    if (a->size >= a->capacity) {
+        unsigned long new_capacity = (a->capacity == 0) ? 1 : (a->capacity * 2);
+
+        int *new_element = realloc(a->element, sizeof(int) * new_capacity);
+        if (!new_element) {
+            free(a->element);
+            return 1;
+        }
+
+        a->capacity = new_capacity;
         a->element = new_element;
     }
+
     a->element[a->size++] = elem;
 
     return 0;
 }
 
+
 unsigned long array_size(const struct array *a) {
-    return (a) ? a->size : NULL;
+    return (a) ? a->size : 0;
 }

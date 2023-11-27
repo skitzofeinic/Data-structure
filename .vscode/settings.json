@@ -11,6 +11,10 @@
         "utility": "c",
         "random": "c",
         "maze.h": "c",
-        "unordered_map": "c"
+        "unordered_map": "c",
+        "system_error": "c",
+        "functional": "c",
+        "tuple": "c",
+        "type_traits": "c"
     },
 }

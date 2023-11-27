@@ -48,30 +48,69 @@ struct table *table_init(unsigned long capacity,
     return t;
 }
 
+struct node *node_init(const char *key, struct node *next) {
+    struct node *n = malloc(sizeof(struct node));
+    if (!n) return NULL;
+
+    n->key = malloc(strlen(key) + 1);
+    if (!n->key) {
+        free(n);
+        return NULL;
+    }
+
+    strcpy(n->key, key);
+
+    n->value = array_init(1000);
+    if (!n->value) {
+        free(n->key);
+        free(n);
+        return NULL;
+    }
+
+    n->next = next;
+
+    return n;
+}
+
 int table_insert(struct table *t, const char *key, int value) {
     if (!t || !key) return 1;
-    
+
     unsigned long index = t->hash_func((const unsigned char *)key) % t->capacity;
 
     struct node *current = t->array[index];
     while (current) {
         if (strcmp(current->key, key) == 0) {
-            return array_append(current->value, value) ? 1 : 0;
+            return array_append(current->value, value) ? 0 : 1;
         }
         current = current->next;
     }
+
+    struct node *new_node = node_init(key, t->array[index]);
+    if (!new_node) return 1;
+
+    if (array_append(new_node->value, value)){
+        free(new_node->key);
+        array_cleanup(new_node->value);
+        free(new_node);
+        return 1;
+    }
+
+    t->array[index] = new_node;
+    t->load++;
+
+    printf("\n\nval = %d\nload=%ld\nidx=%ld\n", value, t->load, index);
 
     return 0;
 }
 
 struct array *table_lookup(const struct table *t, const char *key) {
     if (!t || !key) return NULL;
-    
+
     unsigned long index = t->hash_func((const unsigned char *)key) % t->capacity;
-    
+
     struct node *current = t->array[index];
     while (current) {
-        if (strcmp(current->key, key) == 0) return (struct array *)current->key;
+        if (strcmp(current->key, key) == 0) return current->value;
         current = current->next;
     }
 
