@@ -59,8 +59,6 @@ struct node *node_init(const char *key, struct node *next) {
         return NULL;
     }
 
-    strcpy(n->key, key);
-
     n->value = array_init(1000);
     if (!n->value) {
         free(n->key);
@@ -68,8 +66,8 @@ struct node *node_init(const char *key, struct node *next) {
         return NULL;
     }
 
+    strcpy(n->key, key);
     n->next = next;
-
     return n;
 }
 
@@ -115,7 +113,6 @@ int table_resize(struct table *t, unsigned long new_capacity) {
     free(t->array);
     t->array = n;
     t->capacity = next_prime(new_capacity);
-
     return 0;
 }
 
