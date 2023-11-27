@@ -72,6 +72,32 @@ struct node *node_init(const char *key, struct node *next) {
     return n;
 }
 
+struct table *table_resize(struct table *t, unsigned long new_capacity) {
+    struct table *new_table = table_init(new_capacity, t->max_load_factor, t->hash_func);
+    if (!new_table) return NULL;
+
+    for (unsigned long i = 0; i < t->capacity; ++i) {
+        struct node *current = t->array[i];
+        while (current) {
+            for (unsigned long j = 0; j < array_size(current->value); ++j) {
+                int value = array_get(current->value, j);
+                table_insert(new_table, current->key, value);
+            }
+
+            current = current->next;
+        }
+    }
+
+    free(t->array);
+    free(t);
+
+    return new_table;
+}
+
+unsigned long new_capacity() {
+    
+}
+
 int table_insert(struct table *t, const char *key, int value) {
     if (!t || !key) return 1;
 
@@ -97,6 +123,12 @@ int table_insert(struct table *t, const char *key, int value) {
 
     t->array[index] = new_node;
     t->load++;
+
+    if (table_load_factor(t) > t->max_load_factor) {
+        t = table_resize(t, );
+        if (!t) return 1;
+    }
+    
 
     printf("\n\nval = %d\nload=%ld\nidx=%ld\n", value, t->load, index);
 
