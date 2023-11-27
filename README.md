@@ -26,7 +26,7 @@ due 8 Nov by 23:59
 29 Nov by 23:59
 - ~~Array~~
 - ~~Hash table~~
-- Hash functions
+- ~~Hash functions~~
 
 ### [Heaps](https://canvas.uva.nl/courses/39076/assignments/459995/submissions/411202)
 6 Dec by 23:59
