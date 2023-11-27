@@ -1,3 +1,15 @@
+/**
+ * Author: Nguyen Anh Le
+ * StudentID: 15000370
+ * BSc Informatica
+ * 
+ * The program utilizes a dynamic hash table with configurable parameters such as
+ * initial size, maximum load factor, and hash function. It includes functions for
+ * table initialization, insertion, lookup, deletion, resizing, and cleanup. The hash
+ * table dynamically adjusts its size to maintain an efficient load factor and utilizes
+ * a hash function specified during initialization.
+ */
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,19 +23,26 @@
 #define LINE_LENGTH 256
 #define TABLE_START_SIZE 256
 #define MAX_LOAD_FACTOR 0.6
-#define HASH_FUNCTION hash_too_simple
+#define HASH_FUNCTION djb2
 #define START_TESTS 2
 #define MAX_TESTS 2
-#define HASH_TESTS 1
+#define HASH_TESTS 4
 
 /* Replace every non-ascii char with a space and lowercase every char. */
 static void cleanup_string(char *line) {
     for (char *c = line; *c != '\0'; c++) {
         *c = (char)tolower(*c);
-        if (!isalpha(*c) && *c != ' ') {
+        if (!isalpha(*c)) {
             *c = ' ';
         }
     }
+}
+
+/* removes suffixes from the input by terminating the string when encountering empty space. */
+static void remove_suffix(char *line) {
+    cleanup_string(line);
+    char *space = strchr(line, ' ');
+    if (space) *space = '\0';
 }
 
 /* Creates a hash table with a word index for the specified file and
@@ -42,32 +61,35 @@ static struct table *create_from_file(char *filename,
         return NULL;
     }
 
-    struct table *hash_table = table_init(start_size, max_load, hash_func);
-    if (!hash_table) {
+    struct table *ht = table_init(start_size, max_load, hash_func);
+    if (!ht) {
         fclose(fp);
         free(line);
         return NULL;
     }
 
     int line_num = 0;
+
     while (fgets(line, LINE_LENGTH, fp)) {
         cleanup_string(line);
         char *token = strtok(line, " \t\n");
         line_num++;
+        
         while (token) {
-            if (table_insert(hash_table, token, line_num)) {
+            if (table_insert(ht, token, line_num)) {
                 fclose(fp);
                 free(line);
-                table_cleanup(hash_table);
+                table_cleanup(ht);
                 return NULL;
             }
+
             token = strtok(NULL, " \t\n");
         }
     }
+
     fclose(fp);
     free(line);
-
-    return hash_table;
+    return ht;
 }
 
 /* Reads words from stdin and prints line lookup results per word.
@@ -77,8 +99,9 @@ static int stdin_lookup(struct table *hash_table) {
     if (!line) return 1;
 
     while (fgets(line, LINE_LENGTH, stdin)) {
-        cleanup_string(line);
+        remove_suffix(line);
         char *token = strtok(line, " \t\n");
+
         while (token) {
             struct array *value = table_lookup(hash_table, token);
             printf("%s\n", token);
@@ -93,6 +116,7 @@ static int stdin_lookup(struct table *hash_table) {
             token = strtok(NULL, " \t\n");
         }
     }
+
     free(line);
     return 0;
 }
@@ -100,7 +124,12 @@ static int stdin_lookup(struct table *hash_table) {
 static void timed_construction(char *filename) {
     unsigned long start_sizes[START_TESTS] = {2, 65536};
     double max_loads[MAX_TESTS] = {0.2, 1.0};
-    unsigned long (*hash_funcs[HASH_TESTS])(const unsigned char *) = {hash_too_simple};
+    unsigned long (*hash_funcs[HASH_TESTS])(const unsigned char *) = {
+        hash_too_simple,
+        jenkins_one_at_a_time_hash,
+        murmur3_32,
+        djb2,
+    };
 
     for (int i = 0; i < START_TESTS; i++) {
         for (int j = 0; j < MAX_TESTS; j++) {
@@ -114,6 +143,7 @@ static void timed_construction(char *filename) {
                        start_sizes[i], max_loads[j], k, end - start);
                 table_cleanup(hash_table);
             }
+            printf("\n");
         }
     }
 }

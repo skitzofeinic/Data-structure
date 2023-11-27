@@ -15,6 +15,9 @@
         "system_error": "c",
         "functional": "c",
         "tuple": "c",
-        "type_traits": "c"
+        "type_traits": "c",
+        "hash_func.h": "c",
+        "string": "c",
+        "memory": "c"
     },
 }

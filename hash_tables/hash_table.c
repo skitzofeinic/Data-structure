@@ -1,3 +1,14 @@
+/**
+ * Name: Nguyen Anh Le
+ * StudentID: 15000370
+ * BSc Informatica
+ * 
+ * Hash table implementation for generic key-value storage. This implementation
+ * includes functions for table initialization, insertion, lookup, deletion,
+ * resizing, and cleanup. The hash table dynamically adjusts its size to maintain
+ * an efficient load factor and utilizes a hash function specified during initialization.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,24 +18,16 @@
 #include "hash_table.h"
 
 struct table {
-    /* The (simple) array used to index the table */
     struct node **array;
-    /* The function used for computing the hash values in this table */
     unsigned long (*hash_func)(const unsigned char *);
-    /* Maximum load factor after which the table array should be resized */
     double max_load_factor;
-    /* Capacity of the array used to index the table */
     unsigned long capacity;
-    /* Current number of elements stored in the table */
     unsigned long load;
 };
 
 struct node {
-    /* The string of characters that is the key for this node */
     char *key;
-    /* A resizing array, containing the all the integer values for this key */
     struct array *value;
-    /* Next pointer */
     struct node *next;
 };
 
@@ -49,6 +52,11 @@ struct table *table_init(unsigned long capacity,
     return t;
 }
 
+/**
+ * Initialise a node and return a pointer to it. Returns NULL on failure.
+ * Requires a key and a pointer to the next node.
+ * Returns: A pointer to the initialized node or NULL on failure.
+ */
 struct node *node_init(const char *key, struct node *next) {
     struct node *n = malloc(sizeof(struct node));
     if (!n) return NULL;
@@ -71,27 +79,37 @@ struct node *node_init(const char *key, struct node *next) {
     return n;
 }
 
-unsigned long next_prime(unsigned long new_capacity) {
-    if (new_capacity <= 1) return 2;
-
-    if (new_capacity % 2 == 0) ++new_capacity;
+/**
+ * Check if the capacity is a prime number. If it is not, iteratively search for
+ * the next prime number greater than or equal to the given capacity.
+ * Returns: The next prime number greater than or equal to the given capacity.
+ */
+unsigned long next_prime(unsigned long capacity) {
+    unsigned long incr = 2, start = 3;
+    if (capacity <= 1) return incr;
+    if (capacity % incr == 0) ++capacity;
 
     while (1) {
         bool is_prime = true;
 
-        for (unsigned long i = 2; i * i <= new_capacity; ++i) {
-            if (new_capacity % i == 0) {
+        for (unsigned long i = start; i * i <= capacity; i += incr) {
+            if (capacity % i == 0) {
                 is_prime = false;
                 break;
             }
         }
 
-        if (is_prime) return new_capacity;
-
-        new_capacity += 2;
+        if (is_prime) return capacity;
+        capacity += incr;
     }
 }
 
+
+/**
+ * Resizes the table with the new capacity. It copies all the old nodes into the new table.
+ * With the new capacity, it recalculates all the indexes.
+ * Returns 0 if successful, otherwise returns 1.
+*/
 int table_resize(struct table *t, unsigned long new_capacity) {
     if (!t) return 1;
 
@@ -100,6 +118,7 @@ int table_resize(struct table *t, unsigned long new_capacity) {
 
     for (size_t i = 0; i < t->capacity; ++i) {
         struct node *current = t->array[i];
+
         while (current) {
             struct node *temp = current;
             current = current->next;
@@ -120,8 +139,8 @@ int table_insert(struct table *t, const char *key, int value) {
     if (!t || !key) return 1;
 
     unsigned long index = t->hash_func((const unsigned char *)key) % t->capacity;
-
     struct node *current = t->array[index];
+
     while (current) {
         if (strcmp(current->key, key) == 0) {
             return !array_append(current->value, value) ? 0 : 1;
@@ -153,8 +172,8 @@ struct array *table_lookup(const struct table *t, const char *key) {
     if (!t || !key) return NULL;
 
     unsigned long index = t->hash_func((const unsigned char *)key) % t->capacity;
-
     struct node *current = t->array[index];
+    
     while (current) {
         if (strcmp(current->key, key) == 0) return current->value;
         current = current->next;
@@ -171,7 +190,6 @@ int table_delete(struct table *t, const char *key) {
     if (!t || !key) return 1;
 
     unsigned long index = t->hash_func((const unsigned char *)key) % t->capacity;
-
     struct node *current = t->array[index];
     struct node *prev = NULL;
 
@@ -187,7 +205,6 @@ int table_delete(struct table *t, const char *key) {
             array_cleanup(current->value);
             free(current);
             t->load--;
-
             return 0;
         }
 
@@ -203,6 +220,7 @@ void table_cleanup(struct table *t) {
 
     for (unsigned long i = 0; i < t->capacity; ++i) {
         struct node *cur = t->array[i];
+
         while (cur) {
             struct node *temp = cur;
             cur = cur->next;

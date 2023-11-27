@@ -1,3 +1,15 @@
+/**
+ * Name: Nguyen Anh Le
+ * StudentID: 15000370
+ * BSc Informatica
+ * 
+ * Dynamic Array Implementation
+ * This module implements a dynamic array that can grow dynamically as elements
+ * are appended. It provides functions for array initialization, appending elements,
+ * accessing elements by index, and cleaning up the array resources. The array dynamically
+ * adjusts its size to accommodate new elements and efficiently manages memory.
+ */
+
 #include <stdlib.h>
 
 #include "array.h"
@@ -9,6 +21,7 @@ struct array {
 };
 
 struct array *array_init(unsigned long initial_capacity) {
+    if (initial_capacity == 0) return NULL;
     struct array *a = malloc(sizeof(struct array));
     if (!a) return NULL;
 
