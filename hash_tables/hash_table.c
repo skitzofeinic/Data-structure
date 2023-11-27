@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "array.h"
 #include "hash_table.h"
@@ -72,30 +73,50 @@ struct node *node_init(const char *key, struct node *next) {
     return n;
 }
 
-struct table *table_resize(struct table *t, unsigned long new_capacity) {
-    struct table *new_table = table_init(new_capacity, t->max_load_factor, t->hash_func);
-    if (!new_table) return NULL;
+unsigned long next_prime(unsigned long new_capacity) {
+    if (new_capacity <= 1) return 2;
 
-    for (unsigned long i = 0; i < t->capacity; ++i) {
+    if (new_capacity % 2 == 0) ++new_capacity;
+
+    while (1) {
+        bool is_prime = true;
+
+        for (unsigned long i = 2; i * i <= new_capacity; ++i) {
+            if (new_capacity % i == 0) {
+                is_prime = false;
+                break;
+            }
+        }
+
+        if (is_prime) return new_capacity;
+
+        new_capacity += 2;
+    }
+}
+
+int table_resize(struct table *t, unsigned long new_capacity) {
+    if (!t) return 1;
+
+    struct node **n = calloc(next_prime(new_capacity), sizeof(struct node *));
+    if (!n) return 1;
+
+    for (size_t i = 0; i < t->capacity; ++i) {
         struct node *current = t->array[i];
         while (current) {
-            for (unsigned long j = 0; j < array_size(current->value); ++j) {
-                int value = array_get(current->value, j);
-                table_insert(new_table, current->key, value);
-            }
-
+            struct node *temp = current;
             current = current->next;
+
+            unsigned long idx = t->hash_func((const unsigned char *)temp->key) % next_prime(new_capacity);
+            temp->next = n[idx];
+            n[idx] = temp;
         }
     }
 
     free(t->array);
-    free(t);
+    t->array = n;
+    t->capacity = next_prime(new_capacity);
 
-    return new_table;
-}
-
-unsigned long new_capacity() {
-    
+    return 0;
 }
 
 int table_insert(struct table *t, const char *key, int value) {
@@ -106,7 +127,7 @@ int table_insert(struct table *t, const char *key, int value) {
     struct node *current = t->array[index];
     while (current) {
         if (strcmp(current->key, key) == 0) {
-            return array_append(current->value, value) ? 0 : 1;
+            return !array_append(current->value, value) ? 0 : 1;
         }
         current = current->next;
     }
@@ -124,14 +145,10 @@ int table_insert(struct table *t, const char *key, int value) {
     t->array[index] = new_node;
     t->load++;
 
-    if (table_load_factor(t) > t->max_load_factor) {
-        t = table_resize(t, );
-        if (!t) return 1;
+    if (table_load_factor(t) >= t->max_load_factor) {
+        if (table_resize(t, t->capacity * 2)) return 1;
     }
     
-
-    printf("\n\nval = %d\nload=%ld\nidx=%ld\n", value, t->load, index);
-
     return 0;
 }
 
