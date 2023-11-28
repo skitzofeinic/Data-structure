@@ -122,8 +122,8 @@ static int stdin_lookup(struct table *hash_table) {
 }
 
 static void timed_construction(char *filename) {
-    unsigned long start_sizes[START_TESTS] = {2, 65536, 512, 32768, 4096};
-    double max_loads[MAX_TESTS] = {0.2, 1.0, 3.0, 10.0, 5.2};
+    unsigned long start_sizes[START_TESTS] = {2, 512, 4096, 32768, 65536};
+    double max_loads[MAX_TESTS] = {0.2, 1.0, 3.0, 5.2, 10.0};
     unsigned long (*hash_funcs[HASH_TESTS])(const unsigned char *) = {
         hash_too_simple,
         jenkins_one_at_a_time_hash,

@@ -85,6 +85,7 @@ struct node *node_init(const char *key, struct node *next) {
  */
 unsigned long next_prime(unsigned long capacity) {
     unsigned long incr = 2, start = 3;
+    
     if (capacity <= 1) return incr;
     if (capacity % incr == 0) ++capacity;
 
