@@ -8,6 +8,7 @@
  * 2. jenkins_one_at_a_time_hash
  * 3. murmur3_32
  * 4. djb2
+ * 5. fnv1a
 */
 
 #include "hash_func.h"
@@ -62,10 +63,10 @@ unsigned long murmur3_32(const unsigned char *str) {
 
     switch (strlen((const char *)tail) & 3) {
         case 3:
-            k1 ^= tail[2] << 16;
+            k1 ^= (uint32_t) (tail[2] << 16);
             //fallthrough
         case 2:
-            k1 ^= tail[1] << 8;
+            k1 ^= (uint32_t) (tail[1] << 8);
             //fallthrough
         case 1:
             k1 ^= tail[0];
@@ -81,7 +82,6 @@ unsigned long murmur3_32(const unsigned char *str) {
     hash ^= (hash >> 13);
     hash *= 0xc2b2ae35;
     hash ^= (hash >> 16);
-
     return (unsigned long)hash;
 }
 
@@ -93,5 +93,17 @@ unsigned long djb2(const unsigned char *str) {
         hash = ((hash << 5) + hash) + (unsigned long) c;
     }
 
+    return hash;
+}
+
+unsigned long fnv1a(const unsigned char *str) {
+    unsigned long hash = 14695981039346656037UL;
+    int c;
+
+    while ((c = *str++)) {
+        hash ^= (unsigned long)c;
+        hash *= 1099511628211UL;
+    }
+    
     return hash;
 }

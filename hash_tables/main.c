@@ -22,11 +22,11 @@
 
 #define LINE_LENGTH 256
 #define TABLE_START_SIZE 256
-#define MAX_LOAD_FACTOR 0.6
-#define HASH_FUNCTION djb2
-#define START_TESTS 2
-#define MAX_TESTS 2
-#define HASH_TESTS 4
+#define MAX_LOAD_FACTOR 1
+#define HASH_FUNCTION fnv1a
+#define START_TESTS 5
+#define MAX_TESTS 5
+#define HASH_TESTS 5
 
 /* Replace every non-ascii char with a space and lowercase every char. */
 static void cleanup_string(char *line) {
@@ -122,13 +122,14 @@ static int stdin_lookup(struct table *hash_table) {
 }
 
 static void timed_construction(char *filename) {
-    unsigned long start_sizes[START_TESTS] = {2, 65536};
-    double max_loads[MAX_TESTS] = {0.2, 1.0};
+    unsigned long start_sizes[START_TESTS] = {2, 65536, 512, 32768, 4096};
+    double max_loads[MAX_TESTS] = {0.2, 1.0, 3.0, 10.0, 5.2};
     unsigned long (*hash_funcs[HASH_TESTS])(const unsigned char *) = {
         hash_too_simple,
         jenkins_one_at_a_time_hash,
         murmur3_32,
         djb2,
+        fnv1a,
     };
 
     for (int i = 0; i < START_TESTS; i++) {
