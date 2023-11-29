@@ -60,7 +60,9 @@ struct table *table_init(unsigned long capacity,
  * Requires a key and a pointer to the next node.
  * Returns: A pointer to the initialized node or NULL on failure.
  */
-struct node *node_init(const char *key, struct node *next, unsigned long capacity) {
+static struct node *node_init(const char *key, struct node *next, unsigned long capacity) {
+    if (!key || !capacity) return NULL;
+    
     struct node *n = malloc(sizeof(struct node));
     if (!n) return NULL;
 
@@ -87,7 +89,7 @@ struct node *node_init(const char *key, struct node *next, unsigned long capacit
  * the next prime number greater than or equal to the given capacity.
  * Returns: The next prime number greater than or equal to the given capacity.
  */
-unsigned long next_prime(unsigned long capacity) {
+static unsigned long next_prime(unsigned long capacity) {
     if (capacity <= 1) return PRIME_INCR;
     if (capacity % PRIME_INCR == 0) ++capacity;
 
@@ -111,8 +113,8 @@ unsigned long next_prime(unsigned long capacity) {
  * With the new capacity, it recalculates all the indexes.
  * Returns 0 if successful, otherwise returns 1.
 */
-int table_resize(struct table *t, unsigned long new_capacity) {
-    if (!t) return 1;
+static int table_resize(struct table *t, unsigned long new_capacity) {
+    if (!t || new_capacity == 0) return 1;
 
     struct node **n = calloc(next_prime(new_capacity), sizeof(struct node *));
     if (!n) return 1;
@@ -138,7 +140,7 @@ int table_resize(struct table *t, unsigned long new_capacity) {
 }
 
 int table_insert(struct table *t, const char *key, int value) {
-    if (!t || !key) return 1;
+    if (!t || !key || !value) return 1;
 
     unsigned long idx = t->hash_func((const unsigned char *)key) % t->capacity;
     struct node *cur = t->array[idx];
