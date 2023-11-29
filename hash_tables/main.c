@@ -23,7 +23,7 @@
 #define LINE_LENGTH 256
 #define TABLE_START_SIZE 256
 #define MAX_LOAD_FACTOR 1
-#define HASH_FUNCTION fnv1a
+#define HASH_FUNCTION djb2
 #define START_TESTS 5
 #define MAX_TESTS 5
 #define HASH_TESTS 5
@@ -72,6 +72,7 @@ static struct table *create_from_file(char *filename,
 
     while (fgets(line, LINE_LENGTH, fp)) {
         cleanup_string(line);
+        
         char *token = strtok(line, " \t\n");
         line_num++;
         
@@ -107,7 +108,7 @@ static int stdin_lookup(struct table *hash_table) {
             printf("%s\n", token);
 
             if (value) {
-                for (size_t i = 0; i < array_size(value); ++i) {
+                for (unsigned long i = 0; i < array_size(value); ++i) {
                     printf("* %d\n", array_get(value, i));
                 }
             }

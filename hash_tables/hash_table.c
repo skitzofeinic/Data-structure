@@ -17,6 +17,10 @@
 #include "array.h"
 #include "hash_table.h"
 
+#define RESIZE_FACTOR 2
+#define PRIME_INCR 2
+#define PRIME_START 3
+
 struct table {
     struct node **array;
     unsigned long (*hash_func)(const unsigned char *);
@@ -56,7 +60,7 @@ struct table *table_init(unsigned long capacity,
  * Requires a key and a pointer to the next node.
  * Returns: A pointer to the initialized node or NULL on failure.
  */
-struct node *node_init(const char *key, struct node *next) {
+struct node *node_init(const char *key, struct node *next, unsigned long capacity) {
     struct node *n = malloc(sizeof(struct node));
     if (!n) return NULL;
 
@@ -66,7 +70,7 @@ struct node *node_init(const char *key, struct node *next) {
         return NULL;
     }
 
-    n->value = array_init(1000);
+    n->value = array_init(capacity);
     if (!n->value) {
         free(n->key);
         free(n);
@@ -84,15 +88,13 @@ struct node *node_init(const char *key, struct node *next) {
  * Returns: The next prime number greater than or equal to the given capacity.
  */
 unsigned long next_prime(unsigned long capacity) {
-    unsigned long incr = 2, start = 3;
-    
-    if (capacity <= 1) return incr;
-    if (capacity % incr == 0) ++capacity;
+    if (capacity <= 1) return PRIME_INCR;
+    if (capacity % PRIME_INCR == 0) ++capacity;
 
     while (1) {
         bool is_prime = true;
 
-        for (unsigned long i = start; i * i <= capacity; i += incr) {
+        for (unsigned long i = PRIME_START; i * i <= capacity; i += PRIME_INCR) {
             if (capacity % i == 0) {
                 is_prime = false;
                 break;
@@ -100,7 +102,7 @@ unsigned long next_prime(unsigned long capacity) {
         }
 
         if (is_prime) return capacity;
-        capacity += incr;
+        capacity += PRIME_INCR;
     }
 }
 
@@ -115,14 +117,15 @@ int table_resize(struct table *t, unsigned long new_capacity) {
     struct node **n = calloc(next_prime(new_capacity), sizeof(struct node *));
     if (!n) return 1;
 
-    for (size_t i = 0; i < t->capacity; ++i) {
+    for (unsigned long i = 0; i < t->capacity; ++i) {
         struct node *cur = t->array[i];
 
         while (cur) {
             struct node *temp = cur;
             cur = cur->next;
 
-            unsigned long idx = t->hash_func((const unsigned char *)temp->key) % next_prime(new_capacity);
+            unsigned long idx = t->hash_func((const unsigned char *)temp->key) 
+                                % next_prime(new_capacity);
             temp->next = n[idx];
             n[idx] = temp;
         }
@@ -147,7 +150,7 @@ int table_insert(struct table *t, const char *key, int value) {
         cur = cur->next;
     }
 
-    struct node *new_node = node_init(key, t->array[idx]);
+    struct node *new_node = node_init(key, t->array[idx], sizeof(t));
     if (!new_node) return 1;
 
     if (array_append(new_node->value, value)){
@@ -161,7 +164,7 @@ int table_insert(struct table *t, const char *key, int value) {
     t->load++;
 
     if (table_load_factor(t) >= t->max_load_factor) {
-        if (table_resize(t, t->capacity * 2)) return 1;
+        if (table_resize(t, t->capacity * RESIZE_FACTOR)) return 1;
     }
     
     return 0;

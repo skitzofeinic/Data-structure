@@ -14,6 +14,8 @@
 
 #include "array.h"
 
+#define RESIZE_FACTOR 2
+
 struct array {
     unsigned long size;
     int *element;
@@ -21,8 +23,10 @@ struct array {
 };
 
 struct array *array_init(unsigned long initial_capacity) {
+    if (initial_capacity == 0) return NULL;
+
     struct array *a = malloc(sizeof(struct array));
-    if (!a || initial_capacity == 0) return NULL;
+    if (!a) return NULL;
 
     a->element = malloc(sizeof(int) * initial_capacity);
     if (!a->element) {
@@ -48,7 +52,7 @@ int array_append(struct array *a, int elem) {
     if (!a) return 1;
 
     if (array_size(a) >= a->capacity) {
-        unsigned long new_capacity = (a->capacity == 0) ? 1 : (a->capacity * 2);
+        unsigned long new_capacity = (a->capacity == 0) ? 1 : (a->capacity * RESIZE_FACTOR);
 
         int *new_element = realloc(a->element, sizeof(int) * new_capacity);
         if (!new_element) {
