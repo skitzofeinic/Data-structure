@@ -12,9 +12,6 @@
 static char buf[BUF_SIZE];
 
 struct config {
-    /* You can ignore these options until/unless you implement the */
-    /* bonus features. */
-
     /* Set to 1 if -y is specified, 0 otherwise. */
     int year;
 };
@@ -23,7 +20,7 @@ static int parse_options(struct config *cfg, int argc, char *argv[]);
 
 typedef struct {
     char *name;
-    /* ... CODE MISSING HERE .... */
+    int age;
 } patient_t;
 
 static int compare_patient_name(const void *a, const void *b) {
@@ -31,7 +28,10 @@ static int compare_patient_name(const void *a, const void *b) {
 }
 
 static int compare_patient_age(const void *a, const void *b) {
-    /* ... CODE MISSING HERE .... */
+    const int age_a = ((const patient_t *)a)->age;
+    const int age_b = ((const patient_t *)b)->age;
+
+    return (age_a >= age_b) ? age_a : age_b;
 }
 
 int main(int argc, char *argv[]) {
@@ -55,11 +55,12 @@ int main(int argc, char *argv[]) {
             char *s = fgets(buf, BUF_SIZE, stdin);
             if (s == NULL) {
                 fprintf(stderr, "Unexpected end of file. exiting\n");
-                /* ... CODE MISSING HERE .... */
                 return EXIT_FAILURE;
             }
 
-            /* ... CODE MISSING HERE .... */
+            if (strcmp(buf, ".\n") == 0) break;
+            patient_t *current_patient = malloc(sizeof(patient_t));
+
         }
 
         printf(".\n"); /* End turn. */
