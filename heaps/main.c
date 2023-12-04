@@ -13,9 +13,6 @@
 static char buf[BUF_SIZE];
 
 struct config {
-    /* You can ignore these options until/unless you implement the */
-    /* bonus features. */
-
     /* Set to 1 if -y is specified, 0 otherwise. */
     int year;
 };
@@ -32,10 +29,7 @@ static int compare_patient_name(const void *a, const void *b) {
 }
 
 static int compare_patient_age(const void *a, const void *b) {
-    const int age_a = ((const patient_t *) a)->age;
-    const int age_b = ((const patient_t *) b)->age;
-
-    return age_a - age_b;
+    return ((const patient_t *) a)->age - ((const patient_t *) b)->age;
 }
 
 static patient_t *patient_init(char *name, int age) {
@@ -103,7 +97,6 @@ static void append_patient_in_queue(prioq *queue) {
         patient_t *patient = patient_init(name_cpy, age);
         if (!patient) {
             prioq_cleanup(queue, patient_cleanup);
-            free(name_cpy);
             exit(EXIT_FAILURE);
         }
 
