@@ -8,10 +8,14 @@
 #include "prioq.h"
 
 #define BUF_SIZE 1024
+#define MAX_ITERATIONS 10
 
 static char buf[BUF_SIZE];
 
 struct config {
+    /* You can ignore these options until/unless you implement the */
+    /* bonus features. */
+
     /* Set to 1 if -y is specified, 0 otherwise. */
     int year;
 };
@@ -28,53 +32,124 @@ static int compare_patient_name(const void *a, const void *b) {
 }
 
 static int compare_patient_age(const void *a, const void *b) {
-    const int age_a = ((const patient_t *)a)->age;
-    const int age_b = ((const patient_t *)b)->age;
+    const int age_a = ((const patient_t *) a)->age;
+    const int age_b = ((const patient_t *) b)->age;
 
-    return (age_a >= age_b) ? age_a : age_b;
+    return age_a - age_b;
+}
+
+static patient_t *patient_init(char *name, int age) {
+    patient_t *p = malloc(sizeof(patient_t));
+    if (!p) return NULL;
+
+    p->name = malloc(strlen(name) + 1);
+    if (!p->name) {
+        free(p);
+        return NULL;
+    }
+
+    strcpy(p->name, name);
+    p->age = age;
+
+    return p;
+}
+
+static void patient_cleanup(void *p) {
+    if (!p) return;
+
+    patient_t *patient = (patient_t *)p;
+    free(patient->name);
+    free(patient);
+}
+
+static int tokenize_input(char *input, char **name, int *age) {
+    char *token;
+
+    token = strtok(input, " ");
+    if (!token) return 1;
+
+    *name = malloc(strlen(token) + 1);
+    if (!*name) return 1;
+
+    strcpy(*name, token);
+    token = strtok(NULL, " ");
+    if (!token) {
+        free(*name);
+        return 1;
+    }
+    
+    *age = atoi(token);
+
+    return 0;
+}
+
+static void append_patient_in_queue(prioq *queue) {
+    char *name_cpy;
+    int age;
+
+    while (1) {
+        char *s = fgets(buf, BUF_SIZE, stdin);
+
+        if (!s) {
+            if (feof(stdin)) break;
+
+            fprintf(stderr, "Unexpected end of file. Exiting\n");
+            prioq_cleanup(queue, patient_cleanup);
+            exit(EXIT_FAILURE);
+        }
+
+        if (tokenize_input(buf, &name_cpy, &age)) break;
+
+        patient_t *patient = patient_init(name_cpy, age);
+        if (!patient) {
+            prioq_cleanup(queue, patient_cleanup);
+            free(name_cpy);
+            exit(EXIT_FAILURE);
+        }
+
+        free(name_cpy);
+        prioq_insert(queue, patient);
+    }
+}
+
+static void patient_print_and_free(prioq *queue) {
+    patient_t *p = prioq_pop(queue);
+    printf("%s\n", p->name);
+    free(p->name);
+    free(p);
 }
 
 int main(int argc, char *argv[]) {
-    char *token, *name_cpy;
     prioq *queue;
     struct config cfg;
 
-    if (parse_options(&cfg, argc, argv) != 0) {
-        return EXIT_FAILURE;
-    }
+    if (parse_options(&cfg, argc, argv) != 0) return EXIT_FAILURE;
 
     if (cfg.year) {
         queue = prioq_init(&compare_patient_age);
     } else {
         queue = prioq_init(&compare_patient_name);
-    }
-    /* ... CODE MISSING HERE .... */
+    }   
 
     for (int iterations = 0;;) {
-        while (1) {
-            char *s = fgets(buf, BUF_SIZE, stdin);
-            if (s == NULL) {
-                fprintf(stderr, "Unexpected end of file. exiting\n");
-                return EXIT_FAILURE;
-            }
+        append_patient_in_queue(queue);
 
-            if (strcmp(buf, ".\n") == 0) break;
-            patient_t *current_patient = malloc(sizeof(patient_t));
-
+        if (prioq_size(queue) > 0) {
+            patient_print_and_free(queue);
         }
 
-        printf(".\n"); /* End turn. */
+        printf(".\n");
 
-        if (++iterations == 10) {
-
-            /* ... CODE MISSING HERE .... */
-
+        if (++iterations == MAX_ITERATIONS) {
+            while (prioq_size(queue) > 0) {
+                patient_print_and_free(queue);
+            }
             break;
         }
+
     }
 
-    /* ... CODE MISSING HERE .... */
-
+    prioq_cleanup(queue, patient_cleanup);
     return EXIT_SUCCESS;
 }
 
