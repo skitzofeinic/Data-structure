@@ -40,7 +40,9 @@ long int prioq_size(const prioq *q) {
 static int heap_cleanup(struct heap *h, void free_func(void *)) {
     if (!h) return 1;
     
-    if (h->array) array_cleanup(h->array, free_func);
+    if (h->array) {
+        array_cleanup(h->array, free_func);
+    }
     
     free(h);
     return 0;

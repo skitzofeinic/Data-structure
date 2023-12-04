@@ -13,7 +13,6 @@
 static char buf[BUF_SIZE];
 
 struct config {
-    /* Set to 1 if -y is specified, 0 otherwise. */
     int year;
 };
 
@@ -22,6 +21,7 @@ static int parse_options(struct config *cfg, int argc, char *argv[]);
 typedef struct {
     char *name;
     int age;
+    int duration;
 } patient_t;
 
 static int compare_patient_name(const void *a, const void *b) {
@@ -32,7 +32,11 @@ static int compare_patient_age(const void *a, const void *b) {
     return ((const patient_t *) a)->age - ((const patient_t *) b)->age;
 }
 
-static patient_t *patient_init(char *name, int age) {
+static int compare_duration_iteration() {
+
+}
+
+static patient_t *patient_init(char *name, int age, int duration) {
     patient_t *p = malloc(sizeof(patient_t));
     if (!p) return NULL;
 
@@ -44,6 +48,7 @@ static patient_t *patient_init(char *name, int age) {
 
     strcpy(p->name, name);
     p->age = age;
+    p->duration = duration;
 
     return p;
 }
@@ -56,7 +61,7 @@ static void patient_cleanup(void *p) {
     free(patient);
 }
 
-static int tokenize_input(char *input, char **name, int *age) {
+static int tokenize_input(char *input, char **name, int *age, int *duration) {
     char *token;
 
     token = strtok(input, " ");
@@ -74,12 +79,16 @@ static int tokenize_input(char *input, char **name, int *age) {
     
     *age = atoi(token);
 
+    token = strtok(NULL, " ");
+    *duration = token ? atoi(token) : 0;
+
     return 0;
 }
 
-static void append_patient_in_queue(prioq *queue) {
+static void insert_patient_prioq(prioq *queue, int *prev_duration) {
     char *name_cpy;
     int age;
+    int duration = 0;
 
     while (1) {
         char *s = fgets(buf, BUF_SIZE, stdin);
@@ -92,9 +101,14 @@ static void append_patient_in_queue(prioq *queue) {
             exit(EXIT_FAILURE);
         }
 
-        if (tokenize_input(buf, &name_cpy, &age)) break;
+        if (tokenize_input(buf, &name_cpy, &age, &duration)) {
+            *prev_duration -= 1;
+            break;
+        };
 
-        patient_t *patient = patient_init(name_cpy, age);
+        if ((duration += *prev_duration) < 0) duration = 0;
+
+        patient_t *patient = patient_init(name_cpy, age, duration);
         if (!patient) {
             prioq_cleanup(queue, patient_cleanup);
             exit(EXIT_FAILURE);
@@ -102,14 +116,16 @@ static void append_patient_in_queue(prioq *queue) {
 
         free(name_cpy);
         prioq_insert(queue, patient);
+
     }
 }
 
-static void patient_print_and_free(prioq *queue) {
+static void patient_print_and_free(prioq *queue, int *prev_duration) {
     patient_t *p = prioq_pop(queue);
-    printf("%s\n", p->name);
+    printf("name: %s\tage: %d\t\tduration: %d\t\n", p->name, p->age, p->duration);
     free(p->name);
-    free(p);
+    *prev_duration = p->duration;
+    free(p);    
 }
 
 int main(int argc, char *argv[]) {
@@ -124,22 +140,23 @@ int main(int argc, char *argv[]) {
         queue = prioq_init(&compare_patient_name);
     }   
 
+    int prev_duration = 0;
+
     for (int iterations = 0;;) {
-        append_patient_in_queue(queue);
+        insert_patient_prioq(queue, &prev_duration);
 
         if (prioq_size(queue) > 0) {
-            patient_print_and_free(queue);
+            patient_print_and_free(queue, &prev_duration);
         }
 
         printf(".\n");
 
         if (++iterations == MAX_ITERATIONS) {
             while (prioq_size(queue) > 0) {
-                patient_print_and_free(queue);
+                patient_print_and_free(queue, &prev_duration);
             }
             break;
         }
-
     }
 
     prioq_cleanup(queue, patient_cleanup);

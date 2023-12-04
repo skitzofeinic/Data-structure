@@ -24,6 +24,7 @@
         "*.tcc": "c",
         "new": "c",
         "ostream": "c",
-        "streambuf": "c"
+        "streambuf": "c",
+        "chrono": "c"
     },
 }
