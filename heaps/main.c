@@ -72,7 +72,7 @@ static void patient_cleanup(void *p) {
  * Cleans up priority queues and returns exit status
  * 0: Sucess.
  * 1: Unexpected end of file.
- * 2; Error intitalizing patient.
+ * 2: Error intitalizing patient.
  */
 static int clean_and_exit(prioq *queue, prioq *in_session, int status) {
     switch (status) {
