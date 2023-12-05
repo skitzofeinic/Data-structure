@@ -73,7 +73,7 @@ static void patient_cleanup(void *p) {
  * 0: Sucess.
  * 1: Unexpected end of file.
  * 2: Error intitalizing patient.
- */
+*/
 static int clean_and_exit(prioq *queue, prioq *in_session, int status) {
     switch (status) {
         case FILE_FAILURE:
@@ -128,7 +128,7 @@ static int tokenize_input(char **name, int *age, int *duration) {
     *age = atoi(token);
 
     token = strtok(NULL, " ");
-    *duration = token ? atoi(token) : elapsed_time;
+    *duration = token ? atoi(token) : 0;
 
     return 0;
 }
@@ -165,11 +165,11 @@ static void insert_patient_prioq(prioq *queue, prioq *in_session) {
 static void process_patient(prioq *queue, prioq *in_session) {
     if (!queue || !in_session) return;
 
-    patient_t *p =  (prioq_size(in_session) > 0) ? prioq_pop(in_session) : 
+    patient_t *p =  (prioq_size(in_session) > 0) ? prioq_pop(in_session) :
                     (prioq_size(queue) > 0)      ? prioq_pop(queue) : NULL;
     if (!p) return;
-    
-    if (p->duration != elapsed_time) {
+
+    if (p->duration && p->duration != elapsed_time) {
         prioq_insert(in_session, p);
         return;
     }
@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
         queue = prioq_init(&compare_patient_age);
     } else {
         queue = prioq_init(&compare_patient_name);
-    }   
+    }
 
     for (int iterations = 0;++elapsed_time;) {
         insert_patient_prioq(queue, in_session);
