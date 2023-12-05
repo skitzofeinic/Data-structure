@@ -134,7 +134,7 @@ static int tokenize_input(char **name, int *age, int *duration) {
 }
 
 /* Inserts patients into a priority queue from input. */
-static void insert_patient_prioq(prioq *queue, prioq *in_session) {
+static void patient_prioq_insert(prioq *queue, prioq *in_session) {
     char *name;
     int age = 0, duration = 0;
 
@@ -158,11 +158,11 @@ static void insert_patient_prioq(prioq *queue, prioq *in_session) {
 }
 
 /**
- * Processes the patient in the in_session queue. 
+ * treat the patient in the in_session queue. 
  * If in_session queue is empty, pick from main queue.
  * Print the name of patient when done.
 */
-static void process_patient(prioq *queue, prioq *in_session) {
+static void patient_treat(prioq *queue, prioq *in_session) {
     if (!queue || !in_session) return;
 
     patient_t *p =  (prioq_size(in_session) > 0) ? prioq_pop(in_session) :
@@ -183,7 +183,7 @@ static void process_patient(prioq *queue, prioq *in_session) {
  * Sends remaining patients home from the queue.
  * Prints the names of the patients as they leave.
 */
-static void send_remaining_home(prioq *queue) {
+static void patient_send_remaining_home(prioq *queue) {
     if (!queue) return;
 
     while (prioq_size(queue) > 0) {
@@ -205,13 +205,13 @@ int main(int argc, char *argv[]) {
     }
 
     for (int iterations = 0;++elapsed_time;) {
-        insert_patient_prioq(queue, in_session);
-        process_patient(queue, in_session);
+        patient_prioq_insert(queue, in_session);
+        patient_treat(queue, in_session);
         printf(".\n");
 
         if (++iterations == MAX_ITERATIONS) {
-            send_remaining_home(in_session);
-            send_remaining_home(queue);
+            patient_send_remaining_home(in_session);
+            patient_send_remaining_home(queue);
             break;
         }
     }
