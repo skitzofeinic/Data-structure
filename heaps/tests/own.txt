@@ -1,9 +1,10 @@
-Zoe 22 4
+Annetta 33 1
 .
-Martha 50 1
-.
-.
-Albert 11 1
+Myrle 68 3
 .
 .
 .
+.
+.
+.
+Over 10 5

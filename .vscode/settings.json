@@ -25,6 +25,7 @@
         "new": "c",
         "ostream": "c",
         "streambuf": "c",
-        "chrono": "c"
+        "chrono": "c",
+        "typeinfo": "c"
     },
 }
