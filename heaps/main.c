@@ -25,6 +25,38 @@ typedef struct {
     int duration;
 } patient_t;
 
+
+patient_t *patient_init(const char *name, int age, int duration) {
+    patient_t *p = malloc(sizeof(patient_t));
+    if (!p) return NULL;
+
+    p->name = malloc(strlen(name) + 1);
+    if (!p->name) {
+        free(p);
+        return NULL;
+    }
+
+    strcpy(p->name, name);
+    p->age = age;
+    p->duration = duration;
+
+    return p;
+}
+
+static void patient_cleanup(void *p) {
+    if (!p) return;
+
+    free(((patient_t *)p)->name);
+    free((patient_t *)p);
+}
+
+static int clean_and_exit(prioq *queue, prioq *being_treated, int status) {
+    prioq_cleanup(queue, patient_cleanup);
+    prioq_cleanup(being_treated, patient_cleanup);
+
+    return status;
+}
+
 static int compare_patient_name(const void *a, const void *b) {
     return strcmp(((const patient_t *) a)->name, ((const patient_t *) b)->name);
 }
@@ -33,17 +65,76 @@ static int compare_patient_age(const void *a, const void *b) {
     return ((const patient_t *) a)->age - ((const patient_t *) b)->age;
 }
 
-static void patient_cleanup(void *p) {
-    if (!p) return;
+static int tokenize_input(char **name, int *age, int *duration) {
+    char *token = strtok(buf, " ");
+    if (!token) return EXIT_FAILURE;
 
-    patient_t *patient = (patient_t *)p;
-    free(patient->name);
-    free(patient);
+    *name = malloc(strlen(token) + 1);
+    if (!*name) return EXIT_FAILURE;
+
+    strcpy(*name, token);
+
+    token = strtok(NULL, " ");
+    if (!token) {
+        free(*name);
+        return EXIT_FAILURE;
+    }
+
+    *age = atoi(token);
+    token = strtok(NULL, " ");
+    *duration = token ? atoi(token) : -1;
+
+    return EXIT_SUCCESS;
+}
+
+static void process_patient(prioq *queue, prioq *being_treated) {
+    patient_t *p =  (prioq_size(being_treated) > 0) ? prioq_pop(being_treated) : 
+                    (prioq_size(queue) > 0)         ? prioq_pop(queue) : NULL;
+    if (!p) return;
+    
+    if (!(p->duration == -1 || p->duration == elapsed)) {
+        prioq_insert(being_treated, p);
+        return;
+    }
+
+    printf("%s\n", p->name);
+    patient_cleanup(p);
+    elapsed = 0;
+}
+
+static void send_remaining_home(prioq *queue) {
+    while (prioq_size(queue) > 0) {
+        patient_t *p = prioq_pop(queue);
+        printf("%s\n",p->name);
+        patient_cleanup(p);
+        ++elapsed;
+    }
+}
+
+static void insert_patient_prioq(prioq *queue, prioq *being_treated) {
+    char *name_cpy;
+    int age = 0, duration = 0;
+
+    while (1) {
+        char *s = fgets(buf, BUF_SIZE, stdin);
+        if (!s) {
+            if (feof(stdin)) break;
+            clean_and_exit(queue, being_treated, EXIT_FAILURE);
+        }
+
+        if (tokenize_input(&name_cpy, &age, &duration)) break;
+        
+        patient_t *p = patient_init(name_cpy, age, duration);
+        if (!p) {
+            clean_and_exit(queue, being_treated, EXIT_FAILURE);
+        }
+
+        free(name_cpy);
+        prioq_insert(queue, p);
+    }
 }
 
 int main(int argc, char *argv[]) {
-    char *token, *name_cpy;
-    int age, duration;
     prioq *queue, *being_treated;
     struct config cfg;
 
@@ -59,98 +150,18 @@ int main(int argc, char *argv[]) {
 
     for (int iterations = 0;;) {
         ++elapsed;
-
-        while (1) {
-            char *s = fgets(buf, BUF_SIZE, stdin);
-
-            if (!s) {
-                if (feof(stdin)) break;
-
-                fprintf(stderr, "Unexpected end of file. Exiting\n");
-                prioq_cleanup(queue, patient_cleanup);
-                prioq_cleanup(being_treated, patient_cleanup);
-                return EXIT_FAILURE;
-            }
-
-            token = strtok(buf, " ");
-            if (!token) break;
-
-            name_cpy = malloc(strlen(token) + 1);
-            if (!name_cpy) break;
-            strcpy(name_cpy, token);
-
-            token = strtok(NULL, " ");
-            if (!token) {
-                free(name_cpy);
-                break;
-            }
-            age = atoi(token);
-
-            token = strtok(NULL, " ");
-            duration = token ? atoi(token) : -1;
-
-            patient_t *patient = malloc(sizeof(patient_t));
-            if (!patient) {
-                prioq_cleanup(queue, patient_cleanup);
-                prioq_cleanup(being_treated, patient_cleanup);
-                return EXIT_FAILURE;
-            }
-
-            patient->name = malloc(strlen(name_cpy) + 1);
-            if (!patient->name) {
-                free(patient);
-                return EXIT_FAILURE;
-            }
-
-            strcpy(patient->name, name_cpy);
-            patient->age = age;
-            patient->duration = duration;
-
-            free(name_cpy);
-            prioq_insert(queue, patient);
-        }
-
-        patient_t *p = NULL;
-        if (prioq_size(being_treated)) {
-            p = prioq_pop(being_treated);
-        } else if (prioq_size(queue)) {
-            p = prioq_pop(queue);
-        }
-
-        if (p) {
-            if ( p->duration == -1 || p->duration == elapsed) {
-                printf("%s\n",p->name);
-                patient_cleanup(p);
-                elapsed = 0;
-            } else {
-                prioq_insert(being_treated, p);
-            }
-        }
-        
+        insert_patient_prioq(queue, being_treated);
+        process_patient(queue, being_treated);
         printf(".\n");
 
         if (++iterations == MAX_ITERATIONS) {
-                while (prioq_size(being_treated) > 0) {
-                patient_t *p = prioq_pop(being_treated);
-                // printf("PRINTING: %-10s\t age: %-3d\t dur: %-3d\t ela: %-3d\tit: %-3d\n", p->name, p->age, p->duration, elapsed, iterations);
-                printf("%s\n",p->name);
-                patient_cleanup(p);
-                ++elapsed;
-            }
-            while (prioq_size(queue) > 0) {
-                patient_t *p = prioq_pop(queue);
-                // printf("PRINTING: %-10s\t age: %-3d\t dur: %-3d\t ela: %-3d\tit: %-3d\n", p->name, p->age, p->duration, elapsed, iterations);
-                printf("%s\n",p->name);
-                patient_cleanup(p);
-                ++elapsed;
-            }
+            send_remaining_home(being_treated);
+            send_remaining_home(queue);
             break;
         }
     }
 
-    prioq_cleanup(queue, patient_cleanup);
-    prioq_cleanup(being_treated, patient_cleanup);
-    return EXIT_SUCCESS;
+    clean_and_exit(queue, being_treated, EXIT_SUCCESS);
 }
 
 int parse_options(struct config *cfg, int argc, char *argv[]) {
