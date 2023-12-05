@@ -14,7 +14,7 @@
 #include "array.h"
 #include "prioq.h"
 
-#define INIT_SIZE 0
+#define INIT_SIZE 100
 #define LEFT_CHILD(i) (2 * (i) + 1)
 #define RIGHT_CHILD(i) (2 * (i) + 2)
 #define PARENT(i) ((i - 1) / 2)
@@ -26,7 +26,10 @@ static struct heap *heap_init(int (*compare)(const void *, const void *)) {
     if (!h) return NULL;
 
     h->array = array_init(INIT_SIZE);
-    if (!h->array) return NULL;
+    if (!h->array) {
+        free(h);
+        return NULL;
+    }
 
     h->compare = compare;
     return h;
@@ -37,7 +40,7 @@ prioq *prioq_init(int (*compare)(const void *, const void *)) {
 }
 
 long int prioq_size(const prioq *q) {
-    return q ? array_size(q->array) : -1;
+    return array_size(q->array);
 }
 
 static int heap_cleanup(struct heap *h, void free_func(void *)) {
@@ -52,7 +55,7 @@ static int heap_cleanup(struct heap *h, void free_func(void *)) {
 }
 
 int prioq_cleanup(prioq *q, void free_func(void *)) {
-    return q ? heap_cleanup(q, free_func) : -1;
+    return heap_cleanup(q, free_func);
 }
 
 /* Swaps two elements in the array. */
@@ -68,8 +71,8 @@ static int heap_insert(struct heap *h, void *p) {
     array_append(h->array, p);
     long idx = ARRAY_SIZE_MINUS_ONE(h->array);
 
-    while (idx) {
-        long parent_idx = (idx - 1) / 2;
+    while (idx > 0) {
+        long parent_idx = PARENT(idx);
         void *parent_val = array_get(h->array, parent_idx);
 
         if (h->compare(p, parent_val) > 0) break;
