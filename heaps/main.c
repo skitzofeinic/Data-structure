@@ -115,16 +115,10 @@ static int compare_patient_age(const void *a, const void *b) {
 static int tokenize_input(char **name, int *age, int *duration) {
     char *token = strtok(buf, " ");
     if (!token) return 1;
-
-    *name = malloc(strlen(token) + 1);
-    if (!*name) return 1;
-    strcpy(*name, token);
+    *name = token;
 
     token = strtok(NULL, " ");
-    if (!token) {
-        free(*name);
-        return 1;
-    }
+    if (!token) return 1;
     *age = atoi(token);
 
     token = strtok(NULL, " ");
@@ -152,7 +146,6 @@ static void patient_prioq_insert(prioq *queue, prioq *in_session) {
             clean_and_exit(queue, in_session, PATIENT_FAILURE);
         }
 
-        free(name);
         prioq_insert(queue, p);
     }
 }
