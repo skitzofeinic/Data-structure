@@ -135,10 +135,8 @@ static void patient_prioq_insert(prioq *queue, prioq *in_session) {
     while (1) {
         char *s = fgets(buf, BUF_SIZE, stdin);
         if (!s) {
-            if (feof(stdin)) break;
             clean_and_exit(queue, in_session, FILE_FAILURE);
         }
-
         if (tokenize_input(&name, &age, &duration)) break;
         
         patient_t *p = patient_init(name, age, duration);
