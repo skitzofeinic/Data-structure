@@ -69,6 +69,30 @@ static void patient_cleanup(void *p) {
 }
 
 /**
+ * Cleans up priority queues and returns exit status
+ * 0: Sucess.
+ * 1: Unexpected end of file.
+ * 2: Error intitalizing patient.
+*/
+static int clean_and_exit(prioq *queue, prioq *in_session, int status) {
+    switch (status) {
+        case FILE_FAILURE:
+            fprintf(stderr, "Unexpected end of file. exiting\n");
+            break;
+        case PATIENT_FAILURE:
+            fprintf(stderr, "Failed while initializing patient. exiting\n");
+            break;
+        default:
+            break;
+    }
+
+    prioq_cleanup(queue, patient_cleanup);
+    prioq_cleanup(in_session, patient_cleanup);
+
+    return status;
+}
+
+/**
  * Compares names patient a and patient b.
  * Negative return: a is lexicographically less
  * Zero return: equal
@@ -111,15 +135,15 @@ static void patient_prioq_insert(prioq *queue, prioq *in_session) {
     while (1) {
         char *s = fgets(buf, BUF_SIZE, stdin);
         if (!s) {
-            fprintf(stderr, "Unexpected end of file. exiting\n");
-            clean_and_exit(queue, in_session, EXIT_FAILURE);
+            if (feof(stdin)) break;
+            clean_and_exit(queue, in_session, FILE_FAILURE);
         }
+
         if (tokenize_input(&name, &age, &duration)) break;
         
         patient_t *p = patient_init(name, age, duration);
         if (!p) {
-            fprintf(stderr, "Failed while initializing patient. exiting\n");
-            clean_and_exit(queue, in_session, EXIT_FAILURE);
+            clean_and_exit(queue, in_session, PATIENT_FAILURE);
         }
 
         prioq_insert(queue, p);
