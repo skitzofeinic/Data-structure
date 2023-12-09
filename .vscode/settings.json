@@ -18,6 +18,14 @@
         "type_traits": "c",
         "hash_func.h": "c",
         "string": "c",
-        "memory": "c"
+        "memory": "c",
+        "array.h": "c",
+        "prioq.h": "c",
+        "*.tcc": "c",
+        "new": "c",
+        "ostream": "c",
+        "streambuf": "c",
+        "chrono": "c",
+        "typeinfo": "c"
     },
 }
