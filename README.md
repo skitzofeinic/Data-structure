@@ -30,6 +30,8 @@ due 8 Nov by 23:59
 
 ### [Heaps](https://canvas.uva.nl/courses/39076/assignments/459995/submissions/411202)
 6 Dec by 23:59
+- ~~Heap~~
+- ~~Doctor appointment simulation~~
 
 ### [Sets](https://canvas.uva.nl/courses/39076/assignments/459996/submissions/411202)
 15 Dec by 23:59
