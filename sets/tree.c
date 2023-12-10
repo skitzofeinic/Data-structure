@@ -4,8 +4,6 @@
 
 #include "tree.h"
 
-/* C files can be modified anywhere.
- * So you can change or remove these structs to suit your needs. */
 struct tree {
     struct node *root;
     int turbo;
@@ -19,12 +17,8 @@ struct node {
 
 typedef struct node node;
 
-/* Unique id's for numbering nodes in dot format. */
 static int global_node_counter = 0;
 
-/* Helper function: Allocate a new tree node and initialise it with
- * the given parameters. Return a pointer to the new node or NULL on
- * failure. */
 static node *make_node(int data) {
     node *n = malloc(sizeof(node));
     if (!n) return NULL;
@@ -72,7 +66,6 @@ void tree_dot(const struct tree *tree, const char *filename) {
 }
 
 int tree_check(const struct tree *tree) {
-    /* ... OPTIONALLY IMPLEMENT TREE CHECKING HERE ... */
     return 0;
 }
 
@@ -166,7 +159,7 @@ static node *remove_node(node *root, int data) {
             free(root);
             return temp;
         }
-        
+
         if (!root->rhs) {
             node *temp = root->lhs;
             free(root);

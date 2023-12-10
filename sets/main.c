@@ -6,6 +6,7 @@
 #include "set.h"
 
 #define BUF_SIZE 256
+#define TURBO_VAL 1
 
 void cleanup_and_fail(char *buf, struct set *s) {
     if (s) {
@@ -21,11 +22,8 @@ int main(void) {
         perror("Could not allocate input buffer");
         return EXIT_FAILURE;
     }
-    struct set *s = set_init(0);
-    if (!s) {
-        free(buf);
-        return EXIT_FAILURE;
-    }
+    struct set *s = set_init(TURBO_VAL);
+    if (!s) cleanup_and_fail(buf, s);
 
     while (fgets(buf, BUF_SIZE, stdin)) {
         char *endptr;
@@ -55,9 +53,9 @@ int main(void) {
                 break;
             case '?':
                 if (set_find(s, num)) {
-                    fprintf(stdout, "found: %d\n", num);
+                    printf("found: %d\n", num);
                 } else {
-                    fprintf(stdout, "not found: %d\n", num);
+                    printf("not found: %d\n", num);
                 }
                 break;
             case 'p':
