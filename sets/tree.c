@@ -1,3 +1,14 @@
+/**
+ * Name: Nguyen Anh Le
+ * studentID: 15000370
+ * BSc Informatica
+ * 
+ * This file contains declarations for structures and functions related to
+ * the creation, manipulation, and cleanup of a Binary Search Tree (BST).
+ * The BST consists of nodes, each containing an integer data value, a left
+ * child, and a right child.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +30,7 @@ typedef struct node node;
 
 static int global_node_counter = 0;
 
+/* Return a pointer to a new node. Return NULL on failure. */
 static node *make_node(int data) {
     node *n = malloc(sizeof(node));
     if (!n) return NULL;
@@ -132,6 +144,10 @@ int tree_find(struct tree *tree, int data) {
     return node_find(tree->root, data) ? 1 : 0;
 }
 
+/**
+ * Finds and returns the smallest node in the given binary search tree.
+ * Traverses the left child pointers until the leftmost node is reached.
+*/
 static node *tree_find_smallest(node *root) {
     if (!root) return NULL;
 
@@ -142,6 +158,10 @@ static node *tree_find_smallest(node *root) {
     return root;
 }
 
+/**
+ * Removes a node with the specified data from the binary search tree rooted at root.
+ * If the data is not found, the tree remains unchanged.
+ */
 static node *remove_node(node *root, int data) {
     if (!root) return NULL;
 
@@ -184,6 +204,7 @@ int tree_remove(struct tree *tree, int data) {
     return 0;
 }
 
+/* Performs in-order traversal of the binary search tree rooted at root. */
 static void in_order(const struct node *root) {
     if (root) {
         in_order(root->lhs);
@@ -198,6 +219,10 @@ void tree_print(const struct tree *tree) {
     }
 }
 
+/**
+ * Recursively frees memory by cleaning up nodes
+ * in the binary search tree rooted at root.
+ */
 static void node_cleanup(node *root) {
     if (!root) return;
 

@@ -26,6 +26,7 @@
         "ostream": "c",
         "streambuf": "c",
         "chrono": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "stdlib.h": "c"
     },
 }

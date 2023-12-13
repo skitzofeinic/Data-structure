@@ -1,3 +1,12 @@
+/**
+ * Name: Nguyen Anh Le
+ * studentID: 15000370
+ * BSc Informatica
+ * 
+ * This program reads input to perform set operations (+, -, ?, p) on a set
+ * implemented using a BST. It supports adding, removing, finding, and printing elements.
+*/
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,7 +38,7 @@ int main(void) {
         char *endptr;
         char *command;
         char *num_str;
-        int num;
+        int num = 0;
 
         command = strtok(buf, " ");
         if (strchr("+-?", *command)) {
