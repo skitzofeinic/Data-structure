@@ -13,7 +13,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 #include "tree.h"
+#include <limits.h>
 
 struct tree {
     struct node *root;
@@ -24,8 +26,8 @@ struct node {
     int data;
     struct node *lhs;
     struct node *rhs;
+    int height;
 };
-
 typedef struct node node;
 
 static int global_node_counter = 0;
@@ -38,6 +40,7 @@ static node *make_node(int data) {
     n->data = data;
     n->lhs = NULL;
     n->rhs = NULL;
+    n->height = 1;
 
     return n;
 }
@@ -45,7 +48,7 @@ static node *make_node(int data) {
 static int print_tree_dot_r(node *root, FILE *dotf) {
     int left_id, right_id, my_id = global_node_counter++;
 
-    if (root == NULL) {
+    if (!root) {
         fprintf(dotf, "    %d [shape=point];\n", my_id);
         return my_id;
     }
@@ -77,7 +80,60 @@ void tree_dot(const struct tree *tree, const char *filename) {
     fclose(dotf);
 }
 
+/**
+ * recursively checks whether the binary tree with the given root
+ * is a valid BST. 
+ * return 1 if the tree is a valid BST, 0 otherwise.
+*/
+static int bst_is_valid(const struct node *root, int min, int max) {
+    if (!root) {
+        return 1;
+    }
+
+    if (root->data <= min || root->data >= max) {
+        return 0;
+    }
+
+    return bst_is_valid(root->lhs, min, root->data) &&
+           bst_is_valid(root->rhs, root->data, max);
+}
+
+/**
+ * This function calculates the height of the left and right subtrees
+ * and checks if the AVL balance condition is violated at any node.
+ * return 0 if the tree is AVL balanced, 1 if unbalanced.
+*/
+static int avl_check_balance(const struct node *root) {
+    if (!root) {
+        return 0;
+    }
+
+    int leftHeight = avl_check_balance(root->lhs);
+    int rightHeight = avl_check_balance(root->rhs);
+
+    if (abs(leftHeight - rightHeight) > 1) {
+        return 1;
+    }
+
+    return 1 + (leftHeight > rightHeight ? leftHeight : rightHeight);
+}
+
+/* Check properties of the BST and balancing properties if turbo is
+ * set. Return 0 if the checks pass, return an error code otherwise.
+ */
 int tree_check(const struct tree *tree) {
+    if (!tree) {
+        return 0;
+    }
+
+    if (!bst_is_valid(tree->root, INT_MIN, INT_MAX)) {
+        return 1;
+    }
+
+    if (tree->turbo && avl_check_balance(tree->root) == -1) {
+        return 1;
+    }
+
     return 0;
 }
 
@@ -91,22 +147,105 @@ struct tree *tree_init(int turbo) {
     return t;
 }
 
+/* Returns the maximum of two integers. */
+static int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+/* Returns the height of a node in the AVL tree. */
+static int height(node *n) {
+    return (!n) ? 0 : n->height;
+}
+
+/* Calculates the balance factor of a node in the AVL tree. */
+static int balance_factor(node *n) {
+    return (!n) ? 0 : height(n->lhs) - height(n->rhs);
+}
+
+/* Updates the height of a node in the AVL tree. */
+static void height_update(node *n) {
+    if (!n) return;
+    
+    n->height = 1 + max(height(n->lhs), height(n->rhs));
+}
+
 /**
- * Recursively find the position of the data in the tree.
- * Return the root at the position in the tree.
+ * Places a child node in the specified direction relative to its parent.
+ * Returns pointer to the new root node.
 */
-static node *node_insert(node *root, int data) {
+static node *node_place(node *parent, node *child, int direction) {
+    if (direction == 1) {
+        node *temp = child->rhs;
+        child->rhs = parent;
+        parent->lhs = temp;
+    }
+    
+    if (direction == -1) {
+        node *temp = child->lhs;
+        child->lhs = parent;
+        parent->rhs = temp;
+    }
+
+    height_update(parent);
+    height_update(child);
+
+    return child;
+}
+
+/**
+ * Checks balance factor and performs rotations as needed.
+ * It is used during the insertion of a node.
+ * Returns pointer to the new root after balancing.
+*/
+static node *avl_balance(node *root, int data) {
+    const int left_weighted = 1;
+    const int right_weighted = -1;
+
+    height_update(root);
+
+    int balance = balance_factor(root);
+
+    if (balance > left_weighted && root->lhs) {
+        if (data > root->lhs->data) {
+            root->lhs = node_place(root->lhs, root->lhs->rhs, right_weighted);
+        }
+        
+        return node_place(root, root->lhs, left_weighted);
+    }
+
+    if (balance < right_weighted && root->rhs) {
+        if (data < root->rhs->data) {
+            root->rhs = node_place(root->rhs, root->rhs->lhs, left_weighted);
+        }
+        
+        return node_place(root, root->rhs, right_weighted);
+    }
+
+    height_update(root);
+
+    return root;
+}
+
+/**
+ * Inserts a new node into the binary search tree.
+ * If turbo mode is enabled, it also performs AVL balancing after insertion.
+ * Return pointer to the root of the updated tree after insertion.
+*/
+static node *node_insert(node *root, int data, int turbo) {
     if (!root) {
-        node *n = make_node(data);
-        return n ? n : NULL;
+        return make_node(data);
     }
 
     if (data < root->data) {
-        root->lhs = node_insert(root->lhs, data);
+        root->lhs = node_insert(root->lhs, data, turbo);
     } 
     
     if (data > root->data) {
-        root->rhs = node_insert(root->rhs, data);
+        root->rhs = node_insert(root->rhs, data, turbo);
+    }
+
+    if (turbo) {
+        return avl_balance(root, data);
     }
 
     return root;
@@ -117,14 +256,12 @@ int tree_insert(struct tree *tree, int data) {
 
     if (tree_find(tree, data)) return 1;
 
-    tree->root = node_insert(tree->root, data);
+    tree->root = node_insert(tree->root, data, tree->turbo);
 
     return tree->root ? 0 : -1;
 }
 
-/**
- * Recursively find the position of the data in the tree.
-*/
+/* Recursively find the position of the data in the tree. */
 static node *node_find(node *root, int data) {
     if (!root) return NULL;
 
@@ -162,15 +299,15 @@ static node *tree_find_smallest(node *root) {
  * Removes a node with the specified data from the binary search tree rooted at root.
  * If the data is not found, the tree remains unchanged.
  */
-static node *remove_node(node *root, int data) {
+static node *node_remove(node *root, int data) {
     if (!root) return NULL;
 
     if (data < root->data) {
-        root->lhs = remove_node(root->lhs, data);
+        root->lhs = node_remove(root->lhs, data);
     }
     
     if (data > root->data) {
-        root->rhs = remove_node(root->rhs, data);
+        root->rhs = node_remove(root->rhs, data);
     } 
     
     if (data == root->data) {
@@ -188,7 +325,7 @@ static node *remove_node(node *root, int data) {
 
         node *temp = tree_find_smallest(root->rhs);
         root->data = temp->data;
-        root->rhs = remove_node(root->rhs, temp->data);
+        root->rhs = node_remove(root->rhs, temp->data);
     }
 
     return root;
@@ -199,7 +336,7 @@ int tree_remove(struct tree *tree, int data) {
 
     if (!tree_find(tree, data)) return 1;
 
-    tree->root = remove_node(tree->root, data);
+    tree->root = node_remove(tree->root, data);
 
     return 0;
 }

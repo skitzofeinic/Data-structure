@@ -1,6 +1,7 @@
 #include <check.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "tree.h"
 
@@ -11,6 +12,9 @@
 #ifndef ck_assert_ptr_null
 #define ck_assert_ptr_null(X) _ck_assert_ptr(X, ==, NULL)
 #endif
+
+#define MAX_RANDOM_NUMBER 1000
+#define NUM_RANDOM_ELEMENTS 1000
 
 /* Tests */
 
@@ -117,6 +121,39 @@ START_TEST(test_duplicates) {
 END_TEST
 
 
+START_TEST(test_tree_print) {
+    srand((unsigned int)time(NULL));
+
+    // Create a tree with turbo mode
+    struct tree *t = tree_init(1);
+    ck_assert_ptr_nonnull(t);
+
+    // Insert a large number of random elements into the tree
+    for (int i = 0; i < NUM_RANDOM_ELEMENTS; ++i) {
+        while (1) {
+            int random_data = rand() % MAX_RANDOM_NUMBER;
+            if (tree_find(t, random_data) == 0) {
+                // Data doesn't exist in the tree, insert it
+                ck_assert_int_eq(tree_insert(t, random_data), 0);
+                break;
+            }
+        }
+    }
+    // ck_assert_int_eq(tree_insert(t, 1), 0);
+    // ck_assert_int_eq(tree_insert(t, 2), 0);
+    // ck_assert_int_eq(tree_insert(t, 3), 0);
+    // ck_assert_int_eq(tree_insert(t, 4), 0);
+    // ck_assert_int_eq(tree_insert(t, 5), 0);
+    ck_assert_int_eq(tree_check(t), 0);
+
+    // Output the DOT file representing the tree
+    tree_dot(t, "random_tree.dot");
+
+    // Cleanup
+    tree_cleanup(t);
+}
+END_TEST
+
 Suite *tree_suite(void) {
     Suite *s;
     TCase *tc_core;
@@ -135,10 +172,12 @@ Suite *tree_suite(void) {
     tcase_add_test(tc_core, test_remove_not_found);
     tcase_add_test(tc_core, test_find);
     tcase_add_test(tc_core, test_duplicates);
+    tcase_add_test(tc_core, test_tree_print);
 
     suite_add_tcase(s, tc_core);
     return s;
 }
+
 
 int main(void) {
     int number_failed;
