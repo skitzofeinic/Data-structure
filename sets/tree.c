@@ -12,10 +12,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <limits.h>
 
 #include "tree.h"
-#include <limits.h>
 
 struct tree {
     struct node *root;
