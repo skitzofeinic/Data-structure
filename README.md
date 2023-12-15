@@ -5,7 +5,7 @@ Datastructure assignments UvA made by [@skitzofeinic](https://github.com/skitzof
 
 ## Assignments
 
-### [~~Maze Solver~~](https://canvas.uva.nl/courses/39076/assignments/459992/submissions/411202)
+### [Maze Solver](https://canvas.uva.nl/courses/39076/assignments/459992/submissions/411202)
 due 8 Nov by 23:59
 - ~~Stack~~
 - ~~Queue~~
@@ -34,6 +34,11 @@ due 8 Nov by 23:59
 - ~~Doctor appointment simulation~~
 
 ### [Sets](https://canvas.uva.nl/courses/39076/assignments/459996/submissions/411202)
+- ~~Tree~~
+  - ~~BST~~
+  - ~~AVL~~
+- ~~Sets~~
+- ~~Main~~
 15 Dec by 23:59
 
 
