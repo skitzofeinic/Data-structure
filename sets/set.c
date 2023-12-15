@@ -32,15 +32,15 @@ struct set *set_init(int turbo) {
 }
 
 int set_insert(struct set *s, int num) {
-    return s ? tree_insert(s->tree, num) : -1;
+    return (!s) ? -1 : tree_insert(s->tree, num);
 }
 
 int set_find(struct set *s, int num) {
-    return s ? tree_find(s->tree, num) : 0;
+    return (!s) ? 0 : tree_find(s->tree, num);
 }
 
 int set_remove(struct set *s, int num) {
-    return s ? tree_remove(s->tree, num) : 1;
+    return (!s) ? 1 : tree_remove(s->tree, num);
 }
 
 void set_cleanup(struct set *s) {
@@ -55,5 +55,5 @@ void set_print(const struct set *s) {
 }
 
 int set_verify(const struct set *s) {
-    return s ? tree_check(s->tree) : 0;
+    return !s ? 0 : tree_check(s->tree);
 }
