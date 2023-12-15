@@ -34,12 +34,12 @@ due 8 Nov by 23:59
 - ~~Doctor appointment simulation~~
 
 ### [Sets](https://canvas.uva.nl/courses/39076/assignments/459996/submissions/411202)
+15 Dec by 23:59
 - ~~Tree~~
   - ~~BST~~
   - ~~AVL~~
 - ~~Sets~~
 - ~~Main~~
-15 Dec by 23:59
 
 
 
